@@ -143,6 +143,7 @@ function isMetaInfoLine(value) {
   if (isLibraryIdLine(line)) return true;
   if (isStartedRunningLine(line)) return true;
   if (/multiple versions/i.test(line)) return true;
+  if (/^This advertisement has several versions\.?$/i.test(line)) return true;
   if (/^Platforms\b/i.test(line)) return true;
   if (/^Платформы\b/i.test(line)) return true;
   if (/^Categories\b/i.test(line)) return true;
@@ -159,6 +160,9 @@ function isMetaInfoLine(value) {
   if (/^Открыть раскрывающееся меню$/i.test(line)) return true;
   if (/^\d+\s+of\s+\d+$/i.test(line)) return true;
   if (/^\d+\s+ads use this creative and text$/i.test(line)) return true;
+  if (/^This creative and text are used in \d+ ads\.?$/i.test(line)) return true;
+  if (/^Advertising$/i.test(line)) return true;
+  if (/^Ad information$/i.test(line)) return true;
   if (/^\d+\s+объявлен/i.test(line) && /использ/i.test(line) && /креатив/i.test(line)) return true;
   if (/креатив/i.test(line) && /текст/i.test(line) && /использ/i.test(line)) return true;
   if (/^(TEXT|CTA|CATEGORIES|PSYCHOLOGY|DOMAIN|CAPTION|LIBRARY ID|RUNNING FOR|SCORE)$/i.test(line)) return true;

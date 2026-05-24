@@ -284,4 +284,33 @@ describe("analyze", () => {
     expect(result.body).not.toContain("несколько версий");
     expect(result.body).not.toContain("Реклама");
   });
+
+  it("should exclude english meta lines from text body", () => {
+    const result = analyze({
+      text: "",
+      headline: "",
+      rawLines: [
+        "Library ID: 1233962465345752",
+        "The show started on January 20, 2026.",
+        "Platforms",
+        "Categories",
+        "This advertisement has several versions.",
+        "This creative and text are used in 2 ads.",
+        "New York Life Insurance Company",
+        "Advertising",
+        "Contact an agent for strategies that protect you every step of the way.",
+        "NEWYORKLIFE.COM",
+        "Contact Us"
+      ],
+      buttons: ["Contact Us"],
+      ctaButton: "Contact Us",
+      images: []
+    });
+
+    expect(result.body).toContain("Contact an agent for strategies that protect you every step of the way.");
+    expect(result.body).not.toContain("This advertisement has several versions");
+    expect(result.body).not.toContain("This creative and text are used in 2 ads");
+    expect(result.body).not.toContain("Advertising");
+  });
+
 });
