@@ -205,6 +205,18 @@ function extractVisibleLines(root) {
   );
 }
 
+function eventComesFromInsightPanel(event) {
+  const path = typeof event?.composedPath === "function" ? event.composedPath() : [];
+  if (Array.isArray(path) && path.length > 0) {
+    return path.some(
+      (node) => node instanceof Element && node.classList?.contains("ad-insight-panel")
+    );
+  }
+
+  const target = event?.target;
+  return target instanceof Element && !!target.closest(".ad-insight-panel");
+}
+
 function extractButtons(root) {
   if (!root) return [];
 
@@ -388,7 +400,7 @@ function isMetaInfoLine(value) {
   if (isLibraryIdLine(line)) return true;
   if (isStartedRunningLine(line)) return true;
   if (/multiple versions/i.test(line)) return true;
-  if (/^This advertisement has several versions\.?$/i.test(line)) return true;
+  if (/This advertisement has several versions\.?/i.test(line)) return true;
   if (/^Platforms\b/i.test(line)) return true;
   if (/^Платформы\b/i.test(line)) return true;
   if (/^Categories\b/i.test(line)) return true;
@@ -402,10 +414,11 @@ function isMetaInfoLine(value) {
   if (/^О рекламодателе$/i.test(line)) return true;
   if (/^About ads and data use$/i.test(line)) return true;
   if (/^Open Drop-down$/i.test(line)) return true;
+  if (/^Open the drop-down menu\b/i.test(line)) return true;
   if (/^Открыть раскрывающееся меню$/i.test(line)) return true;
   if (/^\d+\s+of\s+\d+$/i.test(line)) return true;
   if (/^\d+\s+ads use this creative and text$/i.test(line)) return true;
-  if (/^This creative and text are used in \d+ ads\.?$/i.test(line)) return true;
+  if (/This creative and text are used in \d+ ads\.?/i.test(line)) return true;
   if (/^Advertising$/i.test(line)) return true;
   if (/^Ad information$/i.test(line)) return true;
   if (/^\d+\s+объявлен/i.test(line) && /использ/i.test(line) && /креатив/i.test(line)) return true;
@@ -415,6 +428,25 @@ function isMetaInfoLine(value) {
   if (/^Активно\s+ID Библиотеки:/i.test(line)) return true;
   if (isTimecodeLine(line)) return true;
   return false;
+}
+
+function stripMetaPhrasesFromLine(value) {
+  let line = normalizeLine(value);
+  if (!line) return "";
+
+  const metaPhrases = [
+    /this advertisement has several versions\.?/gi,
+    /this creative and text are used in \d+ ads\.?/gi,
+    /\d+\s+ads use this creative and text\.?/gi,
+    /open the drop-down menu\.?/gi,
+    /open drop-down\.?/gi
+  ];
+
+  for (const pattern of metaPhrases) {
+    line = line.replace(pattern, " ");
+  }
+
+  return normalizeLine(line.replace(/^[,.;:!?\-|–\s]+/, ""));
 }
 
 function isBodyLikeLine(line) {
@@ -577,11 +609,13 @@ function extractAdLibraryFields(root, lines, buttons, pageContext) {
   }
   const candidateContentLines = lines.slice(contentStartIndex);
 
-  const filteredContentLines = candidateContentLines.filter((line) => {
-    if (!line || ignored.has(line)) return false;
-    if (isMetaInfoLine(line)) return false;
-    return true;
-  });
+  const filteredContentLines = candidateContentLines
+    .map((line) => stripMetaPhrasesFromLine(line))
+    .filter((line) => {
+      if (!line || ignored.has(line)) return false;
+      if (isMetaInfoLine(line)) return false;
+      return true;
+    });
   const contentLines = trimLeadingNonBodyLines(filteredContentLines);
 
   const ctaButton = extractCTAButton(buttons);
@@ -1105,6 +1139,10 @@ function injectOverlayStyles() {
     .ad-insight-patterns-input::placeholder {
       color: #98a2b3;
       font-weight: 500;
+    }
+
+    #patterns-score-select {
+      padding-left: 8px;
     }
 
     .ad-insight-patterns-button {
@@ -1766,7 +1804,19 @@ function parseStartedRunningDate(value) {
   const text = normalizeLine(value || "");
   if (!text) return null;
 
-  const compact = text.replace(/\s+/g, " ").trim();
+  const compact = text
+    .replace(/^The show started on\s+/i, "")
+    .replace(/^Show started on\s+/i, "")
+    .replace(/^Started running on\s+/i, "")
+    .replace(/^Started running\s+/i, "")
+    .replace(/^Показ начат\s+/i, "")
+    .replace(/г\.$/i, "")
+    .replace(/,/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  const directParsed = new Date(compact);
+  if (!Number.isNaN(directParsed.getTime())) return directParsed;
   const numeric = compact.match(/\b(\d{1,2})[./-](\d{1,2})[./-]((?:19|20)\d{2})\b/);
   if (numeric) {
     const day = Number(numeric[1]);
@@ -1966,7 +2016,6 @@ function formatInputDate(iso) {
   const day = String(date.getDate()).padStart(2, "0");
   return `${year}-${month}-${day}`;
 }
-
 
 function formatPublishedOn(value) {
   const startedDate = parseStartedRunningDate(value);
@@ -2222,7 +2271,7 @@ async function renderLibrary(options = {}) {
             id="patterns-query-input"
             class="ad-insight-patterns-input"
             type="text"
-            placeholder="Query (optional)"
+            placeholder="Query"
             value="${escapeAttribute(currentLibraryUiState.queryFilter)}"
           />
           <select id="patterns-score-select" class="ad-insight-patterns-select">
@@ -2510,7 +2559,6 @@ async function renderLibrary(options = {}) {
       if (!selectedCategory) {
         return;
       }
-
       const confirmMessage = clearDate
         ? `Clear saved ads in category "${selectedCategory}" for ${clearDate}?`
         : `Clear all saved ads in category "${selectedCategory}"?`;
@@ -2567,7 +2615,7 @@ injectOverlayStyles();
 document.addEventListener(
   "mousemove",
   (e) => {
-    if (e.target.closest(".ad-insight-panel")) return;
+    if (eventComesFromInsightPanel(e)) return;
     if (isNativeInteractiveTarget(e.target)) return;
 
     const now = Date.now();
@@ -2601,7 +2649,7 @@ document.addEventListener(
 document.addEventListener(
   "click",
   (e) => {
-    if (e.target.closest(".ad-insight-panel")) return;
+    if (eventComesFromInsightPanel(e)) return;
     if (isNativeInteractiveTarget(e.target)) return;
 
     const el = findAdContainer(e.target);
@@ -2628,7 +2676,7 @@ document.addEventListener(
 
     renderOverlay(analysis);
   },
-  false
+  true
 );
 
 // ---------------- MESSAGES ----------------

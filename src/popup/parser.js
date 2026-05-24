@@ -143,7 +143,7 @@ function isMetaInfoLine(value) {
   if (isLibraryIdLine(line)) return true;
   if (isStartedRunningLine(line)) return true;
   if (/multiple versions/i.test(line)) return true;
-  if (/^This advertisement has several versions\.?$/i.test(line)) return true;
+  if (/This advertisement has several versions\.?/i.test(line)) return true;
   if (/^Platforms\b/i.test(line)) return true;
   if (/^Платформы\b/i.test(line)) return true;
   if (/^Categories\b/i.test(line)) return true;
@@ -157,10 +157,11 @@ function isMetaInfoLine(value) {
   if (/^О рекламодателе$/i.test(line)) return true;
   if (/^About ads and data use$/i.test(line)) return true;
   if (/^Open Drop-down$/i.test(line)) return true;
+  if (/^Open the drop-down menu\b/i.test(line)) return true;
   if (/^Открыть раскрывающееся меню$/i.test(line)) return true;
   if (/^\d+\s+of\s+\d+$/i.test(line)) return true;
   if (/^\d+\s+ads use this creative and text$/i.test(line)) return true;
-  if (/^This creative and text are used in \d+ ads\.?$/i.test(line)) return true;
+  if (/This creative and text are used in \d+ ads\.?/i.test(line)) return true;
   if (/^Advertising$/i.test(line)) return true;
   if (/^Ad information$/i.test(line)) return true;
   if (/^\d+\s+объявлен/i.test(line) && /использ/i.test(line) && /креатив/i.test(line)) return true;
@@ -170,6 +171,25 @@ function isMetaInfoLine(value) {
   if (/^Активно\s+ID Библиотеки:/i.test(line)) return true;
   if (isTimecodeLine(line)) return true;
   return false;
+}
+
+function stripMetaPhrasesFromLine(value) {
+  let line = normalizeLine(value);
+  if (!line) return "";
+
+  const metaPhrases = [
+    /this advertisement has several versions\.?/gi,
+    /this creative and text are used in \d+ ads\.?/gi,
+    /\d+\s+ads use this creative and text\.?/gi,
+    /open the drop-down menu\.?/gi,
+    /open drop-down\.?/gi
+  ];
+
+  for (const pattern of metaPhrases) {
+    line = line.replace(pattern, " ");
+  }
+
+  return normalizeLine(line.replace(/^[,.;:!?\-|–\s]+/, ""));
 }
 
 function isBodyLikeLine(line) {
@@ -282,12 +302,14 @@ function parseStructuredAdLibrary(snapshot) {
   }
   const candidateContentLines = lines.slice(contentStartIndex);
 
-  const filteredContentLines = candidateContentLines.filter((line) => {
-    if (!line) return false;
-    if (ignored.has(line)) return false;
-    if (isMetaInfoLine(line)) return false;
-    return true;
-  });
+  const filteredContentLines = candidateContentLines
+    .map((line) => stripMetaPhrasesFromLine(line))
+    .filter((line) => {
+      if (!line) return false;
+      if (ignored.has(line)) return false;
+      if (isMetaInfoLine(line)) return false;
+      return true;
+    });
   const contentLines = trimLeadingNonBodyLines(filteredContentLines);
 
   const footerCaption = findFooterCaption(lines, snapshot?.buttons, domain);
