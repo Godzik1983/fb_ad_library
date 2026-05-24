@@ -99,18 +99,6 @@ h1 {
   background: #f8fbff;
 }
 
-.arrow {
-  position: absolute;
-  left: -70px;
-  width: 58px;
-  height: 24px;
-  stroke: #ef233c;
-  stroke-width: 6;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  fill: none;
-}
-
 .step .num {
   width: 28px;
   height: 28px;
@@ -168,9 +156,5 @@ h1 {
 
   .btn {
     width: 100%;
-  }
-
-  .arrow {
-    display: none;
   }
 }
