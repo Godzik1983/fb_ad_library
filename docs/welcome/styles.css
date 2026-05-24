@@ -102,32 +102,13 @@ h1 {
 .arrow {
   position: absolute;
   left: -70px;
-  width: 48px;
-  height: 18px;
-  color: #ef233c;
-}
-
-.arrow::before {
-  content: "";
-  position: absolute;
-  top: 8px;
-  left: 0;
-  width: 38px;
-  height: 4px;
-  border-radius: 999px;
-  background: currentColor;
-}
-
-.arrow::after {
-  content: "";
-  position: absolute;
-  top: 2px;
-  right: 0;
-  width: 14px;
-  height: 14px;
-  border-top: 4px solid currentColor;
-  border-right: 4px solid currentColor;
-  transform: rotate(45deg);
+  width: 58px;
+  height: 24px;
+  stroke: #ef233c;
+  stroke-width: 6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
 }
 
 .step .num {
