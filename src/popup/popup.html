@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body {
+      width: 340px;
+      min-height: 240px;
+      font-family: Arial;
+      padding: 10px;
+    }
+
+    .card {
+      background: #fff;
+      padding: 10px;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+
+    .label {
+      font-weight: bold;
+    }
+
+    .row {
+      margin-bottom: 8px;
+    }
+
+    .library-date-group h4 {
+      margin: 12px 0 6px;
+      font-size: 13px;
+    }
+
+    .library-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .library-item {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      padding: 8px 0 10px;
+      border-bottom: 1px solid #eee;
+    }
+
+    .library-copy {
+      flex: 1;
+      min-width: 0;
+      line-height: 1.35;
+    }
+
+    .saved-time {
+      color: #667085;
+      font-size: 11px;
+      margin-bottom: 4px;
+    }
+
+    .library-thumb {
+      width: 76px;
+      height: 76px;
+      object-fit: cover;
+      flex: 0 0 auto;
+      border-radius: 6px;
+      background: #f1f3f5;
+    }
+
+    .library-thumb-empty {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #8a8f98;
+      font-size: 11px;
+      text-align: center;
+    }
+
+    button {
+      width: 100%;
+      padding: 6px;
+      margin-top: 10px;
+      background: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="app"></div>
+
+  <!-- ВАЖНО -->
+  <script type="module" src="./popup.js"></script>
+</body>
+</html>
