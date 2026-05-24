@@ -89,6 +89,7 @@ h1 {
 }
 
 .step {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -98,7 +99,38 @@ h1 {
   background: #f8fbff;
 }
 
-.step span {
+.arrow {
+  position: absolute;
+  left: -70px;
+  width: 48px;
+  height: 18px;
+  color: #ef233c;
+}
+
+.arrow::before {
+  content: "";
+  position: absolute;
+  top: 8px;
+  left: 0;
+  width: 38px;
+  height: 4px;
+  border-radius: 999px;
+  background: currentColor;
+}
+
+.arrow::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  right: 0;
+  width: 14px;
+  height: 14px;
+  border-top: 4px solid currentColor;
+  border-right: 4px solid currentColor;
+  transform: rotate(45deg);
+}
+
+.step .num {
   width: 28px;
   height: 28px;
   display: grid;
@@ -155,5 +187,9 @@ h1 {
 
   .btn {
     width: 100%;
+  }
+
+  .arrow {
+    display: none;
   }
 }
