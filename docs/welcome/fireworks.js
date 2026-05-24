@@ -4,7 +4,7 @@
   if (!canvas || reduceMotion) return;
 
   const ctx = canvas.getContext("2d");
-  const colors = ["#2563eb", "#ef233c", "#fbbf24", "#22c55e"];
+  const colors = ["rgba(37, 99, 235, 0.72)", "rgba(239, 35, 60, 0.68)", "rgba(251, 191, 36, 0.7)"];
   const particles = [];
   let width = 0;
   let height = 0;
@@ -22,7 +22,7 @@
   }
 
   function burst(x, y) {
-    const count = 38;
+    const count = 24;
     for (let i = 0; i < count; i += 1) {
       const angle = (Math.PI * 2 * i) / count;
       const speed = 1.8 + Math.random() * 3.2;
@@ -31,9 +31,9 @@
         y,
         vx: Math.cos(angle) * speed,
         vy: Math.sin(angle) * speed,
-        life: 46 + Math.random() * 20,
-        maxLife: 66,
-        size: 2 + Math.random() * 2.6,
+        life: 28 + Math.random() * 14,
+        maxLife: 42,
+        size: 1.6 + Math.random() * 1.8,
         color: colors[Math.floor(Math.random() * colors.length)]
       });
     }
@@ -54,14 +54,12 @@
         continue;
       }
 
-      ctx.globalAlpha = Math.max(0, p.life / p.maxLife);
       ctx.fillStyle = p.color;
       ctx.beginPath();
       ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
       ctx.fill();
     }
 
-    ctx.globalAlpha = 1;
     if (particles.length > 0) {
       animationId = requestAnimationFrame(draw);
     }
@@ -70,11 +68,9 @@
   function launch() {
     resize();
     const points = [
-      [width * 0.22, height * 0.24],
-      [width * 0.78, height * 0.22],
-      [width * 0.5, height * 0.16],
-      [width * 0.32, height * 0.42],
-      [width * 0.68, height * 0.42]
+      [width * 0.2, height * 0.18],
+      [width * 0.8, height * 0.18],
+      [width * 0.5, height * 0.12]
     ];
 
     points.forEach(([x, y], index) => {
@@ -82,7 +78,7 @@
         burst(x, y);
         cancelAnimationFrame(animationId);
         draw();
-      }, index * 280);
+      }, index * 220);
     });
   }
 
