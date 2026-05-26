@@ -2213,6 +2213,27 @@ async function renderLibrary(options = {}) {
     </div>
   `;
 
+  // Keep header controls responsive while library data is loading.
+  el.onclick = (e) => {
+    const action = e.target?.dataset?.action;
+
+    if (action === "close") {
+      el.remove();
+      overlayEl = null;
+      return;
+    }
+
+    if (action === "back") {
+      if (currentAnalysis) {
+        renderOverlay(currentAnalysis);
+        return;
+      }
+
+      el.remove();
+      overlayEl = null;
+    }
+  };
+
   const items = await getSavedAds();
   currentLibraryItems = items;
   if (currentLibraryVisibleCount === 0) {
